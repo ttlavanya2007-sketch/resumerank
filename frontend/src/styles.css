@@ -375,6 +375,12 @@ h1 span {
   line-height: 1.5;
 }
 
+.job-description:disabled,
+.upload-zone:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .analyze-button {
   width: 100%;
   min-height: 47px;
@@ -444,6 +450,40 @@ h1 span {
   margin-bottom: 0;
   font-size: 27px;
   letter-spacing: -1.3px;
+}
+
+.analysis-progress,
+.results-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #e4eae1;
+  border-radius: 12px;
+  color: #718078;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.results-placeholder {
+  min-height: 88px;
+}
+
+.loading-spinner {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  border: 2px solid #dce8db;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .example-tag {
