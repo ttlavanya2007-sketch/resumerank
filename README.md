@@ -14,7 +14,7 @@ resulting score, matched skills, missing skills, and explanation in MongoDB.
 Create `backend/.env` based on `backend/.env.example`, then set `MONGODB_URI`
 to your MongoDB connection string and `GEMINI_API_KEY` to your Google AI Studio
 API key. Keep `.env` private and out of version control. `GEMINI_MODEL` defaults
-to `gemini-flash-latest` and can be changed to another supported model.
+to `gemini-1.5-flash`.
 
 ## Run locally
 
