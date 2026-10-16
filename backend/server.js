@@ -10,6 +10,19 @@ const port = Number(process.env.PORT) || 3001;
 app.disable("x-powered-by");
 app.use(express.json({ limit: "32kb" }));
 
+app.use("/api", async (_req, _res, next) => {
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error("MONGODB_URI is required.");
+    }
+
+    await connectDatabase(process.env.MONGODB_URI);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
@@ -28,7 +41,11 @@ async function start() {
   });
 }
 
-start().catch((error) => {
-  console.error("Failed to start the API server:", error);
-  process.exitCode = 1;
-});
+if (process.env.VERCEL !== "1") {
+  start().catch((error) => {
+    console.error("Failed to start the API server:", error);
+    process.exitCode = 1;
+  });
+}
+
+export default app;
