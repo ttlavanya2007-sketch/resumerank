@@ -9,7 +9,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [submission, setSubmission] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState(null);
 
   function handleFile(file) {
     setFileError("");
@@ -17,7 +17,7 @@ function App() {
 
     if (!file) {
       setSelectedFile(null);
-      setSubmission(null);
+      setAnalysisResult(null);
       return;
     }
 
@@ -26,20 +26,20 @@ function App() {
 
     if (!isPdf) {
       setSelectedFile(null);
-      setSubmission(null);
+      setAnalysisResult(null);
       setFileError("Please choose a PDF file.");
       return;
     }
 
     if (file.size > fileLimit) {
       setSelectedFile(null);
-      setSubmission(null);
+      setAnalysisResult(null);
       setFileError("This file is over 10 MB. Please choose a smaller PDF.");
       return;
     }
 
     setSelectedFile(file);
-    setSubmission(null);
+    setAnalysisResult(null);
     setSubmitError("");
   }
 
@@ -56,7 +56,7 @@ function App() {
 
     setIsSubmitting(true);
     setSubmitError("");
-    setSubmission(null);
+    setAnalysisResult(null);
 
     try {
       const formData = new FormData();
@@ -100,7 +100,7 @@ function App() {
         throw new Error("The server returned an invalid analysis. Please try again.");
       }
 
-      setSubmission(result);
+      setAnalysisResult(result);
       document.querySelector("#results").scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -228,7 +228,7 @@ function App() {
               disabled={isSubmitting}
               onChange={(event) => {
                 setJobDescription(event.target.value.slice(0, 10_000));
-                setSubmission(null);
+                setAnalysisResult(null);
                 setSubmitError("");
               }}
               placeholder="Paste the job description you’re targeting..."
@@ -270,18 +270,18 @@ function App() {
           <div className="results-intro">
             <div>
               <p className="section-kicker">
-                {submission ? "YOUR RESUME ANALYSIS" : "RESUME AND JOB DESCRIPTION MATCH"}
+                {analysisResult ? "YOUR RESUME ANALYSIS" : "RESUME AND JOB DESCRIPTION MATCH"}
               </p>
               <h2 id="results-title">
-                {submission
+                {analysisResult
                   ? "Here’s your resume match."
                   : isSubmitting
                     ? "Analyzing your resume..."
                     : "Your results will appear here."}
               </h2>
             </div>
-            {submission && (
-              <span className="example-tag">
+            {analysisResult && (
+              <span className="analysis-tag">
                 <span />
                 GEMINI ANALYSIS
               </span>
@@ -295,21 +295,21 @@ function App() {
             </div>
           )}
 
-          {submission && (
+          {analysisResult && (
             <div className="submission-notice" role="status" aria-live="polite">
               <span className="submission-check" aria-hidden="true">✓</span>
               <div>
                 <strong>Resume analysis complete</strong>
                 <p>
                   Your result is saved with comparison ID{" "}
-                  <code>{submission.id}</code>.
+                  <code>{analysisResult.id}</code>.
                 </p>
               </div>
               <span className="pending-badge">COMPLETE</span>
             </div>
           )}
 
-          {submission ? (
+          {analysisResult ? (
           <div className="results-grid">
             <article className="score-card">
               <div className="score-card-top">
@@ -325,24 +325,24 @@ function App() {
                 <div
                   className="score-ring"
                   role="img"
-                  style={{ "--score-fill": `${submission.score * 3.6}deg` }}
-                  aria-label={`Resume match score: ${submission.score} out of 100`}
+                  style={{ "--score-fill": `${analysisResult.score * 3.6}deg` }}
+                  aria-label={`Resume match score: ${analysisResult.score} out of 100`}
                 >
                   <div className="score-inner">
-                    <span className="score-number">{submission.score}</span>
+                    <span className="score-number">{analysisResult.score}</span>
                     <span className="score-out-of">/ 100</span>
                   </div>
                 </div>
                 <div className="score-summary">
                   <span className="score-status">
                     <span />
-                    {submission.score >= 80
+                    {analysisResult.score >= 80
                       ? "STRONG MATCH"
-                      : submission.score >= 60
+                      : analysisResult.score >= 60
                         ? "GOOD MOMENTUM"
                         : "ROOM TO GROW"}
                   </span>
-                  <p>{submission.explanation}</p>
+                  <p>{analysisResult.explanation}</p>
                 </div>
               </div>
               <div className="score-footer">
@@ -350,8 +350,8 @@ function App() {
                   <span className="footer-dot" /> Skills matched
                 </span>
                 <strong>
-                  {submission.matchedSkills.length} of{" "}
-                  {submission.matchedSkills.length + submission.missingSkills.length}
+                  {analysisResult.matchedSkills.length} of{" "}
+                  {analysisResult.matchedSkills.length + analysisResult.missingSkills.length}
                 </strong>
               </div>
             </article>
@@ -363,14 +363,14 @@ function App() {
                   <h3>Skills you have</h3>
                 </div>
                 <span className="skill-count present-count">
-                  {String(submission.matchedSkills.length).padStart(2, "0")}
+                  {String(analysisResult.matchedSkills.length).padStart(2, "0")}
                 </span>
               </div>
               <p className="skills-description">
                 Requirements evidenced in your resume.
               </p>
               <ul className="skill-list present-list">
-                {submission.matchedSkills.map((skill) => (
+                {analysisResult.matchedSkills.map((skill) => (
                   <li key={skill}>
                     <span className="skill-check" aria-hidden="true">
                       ✓
@@ -378,7 +378,7 @@ function App() {
                     {skill}
                   </li>
                 ))}
-                {submission.matchedSkills.length === 0 && (
+                {analysisResult.matchedSkills.length === 0 && (
                   <li className="empty-skill-list">No matching skills identified.</li>
                 )}
               </ul>
@@ -391,14 +391,14 @@ function App() {
                   <h3>Skills not found</h3>
                 </div>
                 <span className="skill-count missing-count">
-                  {String(submission.missingSkills.length).padStart(2, "0")}
+                  {String(analysisResult.missingSkills.length).padStart(2, "0")}
                 </span>
               </div>
               <p className="skills-description">
                 Important requirements not evidenced in your resume.
               </p>
               <ul className="skill-list missing-list">
-                {submission.missingSkills.map((skill) => (
+                {analysisResult.missingSkills.map((skill) => (
                   <li key={skill}>
                     <span className="skill-missing" aria-hidden="true">
                       +
@@ -406,11 +406,11 @@ function App() {
                     {skill}
                   </li>
                 ))}
-                {submission.missingSkills.length === 0 && (
+                {analysisResult.missingSkills.length === 0 && (
                   <li className="empty-skill-list">No significant skill gaps identified.</li>
                 )}
               </ul>
-              {submission.missingSkills.length > 0 && (
+              {analysisResult.missingSkills.length > 0 && (
                 <div className="tip-box">
                   <span aria-hidden="true">✳</span>
                   <p>
@@ -431,7 +431,7 @@ function App() {
           )}
           <p className="results-disclaimer">
             <span aria-hidden="true">ⓘ</span>
-            {submission
+            {analysisResult
               ? "AI-generated analysis is a guide, not a hiring decision. Review the results for accuracy."
               : "Results are generated from the resume and job description you submit."}
           </p>

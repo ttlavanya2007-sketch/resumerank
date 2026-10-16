@@ -118,7 +118,7 @@ textarea {
 }
 
 .eyebrow-dot,
-.example-tag span {
+.analysis-tag span {
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -486,7 +486,7 @@ h1 span {
   }
 }
 
-.example-tag {
+.analysis-tag {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -500,13 +500,9 @@ h1 span {
   letter-spacing: 0.7px;
 }
 
-.example-tag span {
+.analysis-tag span {
   width: 6px;
   height: 6px;
-}
-
-.example-tag.is-updated span {
-  background: var(--orange);
 }
 
 .submission-notice {
