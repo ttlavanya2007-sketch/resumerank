@@ -27,10 +27,27 @@ const comparisonSchema = {
   required: ["score", "matchedSkills", "missingSkills", "explanation"],
 };
 
-export async function analyzeResume(resumeBuffer, jobDescription) {
-  const client = getGeminiClient();
+function logGeminiFailure(error) {
+  const errorMessage =
+    error instanceof Error ? error.message : String(error ?? "Unknown Gemini error");
+  const apiKey = process.env.GEMINI_API_KEY;
+  const safeMessage = apiKey ? errorMessage.split(apiKey).join("[REDACTED]") : errorMessage;
 
+  console.error(
+    "[Gemini] Resume analysis failed",
+    JSON.stringify({
+      model: geminiModel,
+      errorName: error instanceof Error ? error.name : typeof error,
+      errorStatus: error?.status ?? error?.statusCode ?? null,
+      errorCode: error?.code ?? null,
+      errorMessage: safeMessage.slice(0, 2000),
+    }),
+  );
+}
+
+export async function analyzeResume(resumeBuffer, jobDescription) {
   try {
+    const client = getGeminiClient();
     const response = await client.models.generateContent({
       model: geminiModel,
       contents: [
@@ -63,20 +80,13 @@ export async function analyzeResume(resumeBuffer, jobDescription) {
       throw new AppError(502, "Gemini returned an empty analysis. Please try again.");
     }
 
-    let parsedResult;
-    try {
-      parsedResult = JSON.parse(response.text);
-    } catch {
-      throw new AppError(502, "Gemini returned an invalid analysis. Please try again.");
-    }
-
-    return parseAnalysisResult(parsedResult);
+    return parseAnalysisResult(JSON.parse(response.text));
   } catch (error) {
+    logGeminiFailure(error);
     if (error instanceof AppError) {
       throw error;
     }
 
-    console.error("Gemini analysis request failed:", error.name, error.status);
     throw new AppError(
       502,
       "Gemini could not analyze this resume. Check the model configuration and try again.",
